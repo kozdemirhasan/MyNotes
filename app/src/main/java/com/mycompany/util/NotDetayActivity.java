@@ -10,8 +10,13 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Vibrator;
+import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -25,6 +30,9 @@ import com.mycompany.mynotes.R;
 import com.mycompany.pojo.Crypt;
 import com.mycompany.pojo.Not;
 import com.mycompany.pojo.Sabitler;
+import com.mycompany.pojo.SimpleFileDialog;
+
+import java.io.File;
 
 public class NotDetayActivity extends Activity {
     TextView baslik;
@@ -383,6 +391,21 @@ public class NotDetayActivity extends Activity {
             progressDialog.dismiss();
         }
 
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_not_detail, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
     }
 
 }

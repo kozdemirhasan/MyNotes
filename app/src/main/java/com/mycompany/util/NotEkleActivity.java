@@ -46,14 +46,11 @@ public class NotEkleActivity extends Activity {
                 WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.notekleguncelle);
 
-        konuET = (EditText) findViewById(R.id.konuText);
-        icerikET = (EditText) findViewById(R.id.icerikText);
-        ekleBT = (Button) findViewById(R.id.opButton);
-    //    btnGrup = (Button) findViewById(R.id.btnGrupSec);
-        twGruplar = (TextView) findViewById(R.id.twGruplar);
-
+        konuET =  findViewById(R.id.konuText);
+        icerikET =  findViewById(R.id.icerikText);
+        ekleBT =  findViewById(R.id.opButton);
+        twGruplar =  findViewById(R.id.twGruplar);
         twGruplar.setText(secilenGrup);
-
         konuET.setTextSize(Sabitler.yaziBoyutu);
         icerikET.setTextSize(Sabitler.yaziBoyutu);
 
@@ -90,15 +87,7 @@ public class NotEkleActivity extends Activity {
 
         //
 
-  /*      btnGrup.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                vib.vibrate(30);
-                grupSec(v, grupElemanlari());
-            }
-        });
-*/
+
         twGruplar.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

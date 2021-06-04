@@ -91,6 +91,7 @@
                     android:layout_width="40dp"
                     android:layout_height="30dp"
                     android:background="?attr/actionModeShareDrawable" />
+
             </LinearLayout>
 
 
@@ -144,7 +145,7 @@
                             android:paddingTop="5dp"
                             android:text="..."
                             android:textColor="@android:color/darker_gray"
-                            android:textSize="13sp" />
+                            android:textSize="10sp" />
 
                     </LinearLayout>
 

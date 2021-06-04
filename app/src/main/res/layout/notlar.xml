@@ -30,6 +30,7 @@
         app:backgroundTint="@color/colorPrimary"
         app:srcCompat="@android:drawable/ic_input_add"
         tools:layout_editor_absoluteX="382dp"
+
         tools:layout_editor_absoluteY="536dp" />
 
 </android.support.design.widget.CoordinatorLayout>
