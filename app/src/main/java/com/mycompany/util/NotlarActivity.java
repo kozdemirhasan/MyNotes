@@ -1,5 +1,6 @@
 package com.mycompany.util;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -7,15 +8,24 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 
+import android.os.MemoryFile;
 import android.os.Vibrator;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.os.Bundle;
 import android.support.test.espresso.remote.EspressoRemoteMessage;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.InputType;
@@ -121,7 +131,7 @@ public class NotlarActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-              //  search(charSequence.toString());
+                //  search(charSequence.toString());
 
             }
 
@@ -209,7 +219,7 @@ public class NotlarActivity extends AppCompatActivity {
 
         int sayac = 0;
 
-//Curson tipinde gelen notları teker teker dolaşıyoruz
+        //Curson tipinde gelen notları teker teker dolaşıyoruz
         if (cursor != null) {
             Not searchNot;
 
@@ -248,7 +258,7 @@ public class NotlarActivity extends AppCompatActivity {
             for (int i = 0; i < gruplar.size(); i++) {
                 ArrayList<Not> gecici = new ArrayList<>();
                 for (int j = 0; j < notlar.size(); j++) {
-                    if(gruplar.get(i).equals(notlar.get(j).getGrup()) ){
+                    if (gruplar.get(i).equals(notlar.get(j).getGrup())) {
                         gecici.add(notlar.get(j));
                     }
                 }
@@ -345,41 +355,76 @@ public class NotlarActivity extends AppCompatActivity {
             eskiPass = null;
             yeniPass1 = null;
             yeniPass2 = null;
+
             parolaDegistir();
+
         } else if (item.getTitle().equals("Fake password change")) {
             //change fake password
             eskiFakePass = null;
             yeniFakePass1 = null;
             yeniFakePass2 = null;
+
             fakeParolaDegistir();
 
         } else if (item.getTitle().equals("Back up data")) {
-            File sd = Environment.getExternalStorageDirectory();
-            if (sd.canWrite()) {
-                /////////////////////////////////////////////////////////////////////////////////////////////////
-                //Create FileSaveDialog and register a callback
-                /////////////////////////////////////////////////////////////////////////////////////////////////
-                SimpleFileDialog FileSaveDialog = new SimpleFileDialog(NotlarActivity.this, "FileSave",
-                        new SimpleFileDialog.SimpleFileDialogListener() {
-                            @Override
-                            public void onChosenDir(String chosenDir) {
-                                // The code in this function will be executed when the dialog OK button is pushed
-                                String m_chosen = chosenDir;
-                                backUp(m_chosen, Sabitler.DATABASE_NAME_NOTES);
-                            }
-                        });
 
-                //You can change the default filename using the public variable "Default_File_Name"
-                FileSaveDialog.Default_File_Name = "MyNotes_" + tahihBilgisiniGetir();
-                FileSaveDialog.chooseFile_or_Dir();
+            //  chooseImage();
+            backUpData();
 
-            } else {
-                Toast.makeText(NotlarActivity.this,
-                        "Before you can make a backup, you must first grant access to the storage in My Notes", Toast.LENGTH_LONG).show();
-            }
         } else if (item.getTitle().equals("Restore from backup")) {
-            File sd2 = Environment.getExternalStorageDirectory();
-            File data = Environment.getDataDirectory();
+
+            restoreFromBackup();
+
+        } else if (item.getTitle().equals("Update all dates")) {
+
+            tarihBilgisiAl();
+
+        } else if (item.getTitle().equals("Settings")) {
+            //ayarlar sayfasına git
+            Intent i = new Intent(NotlarActivity.this, AyarlarActivity.class);
+            startActivity(i);
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void backUpData() {
+        File sd = Environment.getExternalStorageDirectory();
+
+
+        if (sd.canWrite()) {
+            /////////////////////////////////////////////////////////////////////////////////////////////////
+            //Create FileSaveDialog and register a callback
+            /////////////////////////////////////////////////////////////////////////////////////////////////
+            SimpleFileDialog FileSaveDialog = new SimpleFileDialog(NotlarActivity.this, "FileSave",
+                    new SimpleFileDialog.SimpleFileDialogListener() {
+                        @Override
+                        public void onChosenDir(String chosenDir) {
+                            // The code in this function will be executed when the dialog OK button is pushed
+
+                            String m_chosen = chosenDir;
+
+                            backUp(m_chosen, Sabitler.DATABASE_NAME_NOTES);
+                        }
+                    });
+
+            //You can change the default filename using the public variable "Default_File_Name"
+            FileSaveDialog.Default_File_Name = "MyNotes_" + tahihBilgisiniGetir();
+            FileSaveDialog.chooseFile_or_Dir();
+        } else {
+            Toast.makeText(NotlarActivity.this,
+                    "Before you can make a backup, you must first grant access to the storage in My Notes", Toast.LENGTH_LONG).show();
+        }
+
+
+    }
+
+    public void restoreFromBackup() {
+        File sd2 = Environment.getExternalStorageDirectory();
+        File data = Environment.getDataDirectory();
+
+        if (sd2.canWrite()) {
+
             if (sd2.canRead() || data.canRead()) {
                 /////////////////////////////////////////////////////////////////////////////////////////////////
                 //Create FileOpenDialog and register a callback
@@ -402,17 +447,106 @@ public class NotlarActivity extends AppCompatActivity {
                 FileOpenDialog.Default_File_Name = "";
                 FileOpenDialog.chooseFile_or_Dir();
             }
-        } else if (item.getTitle().equals("Update all dates")) {
-            tarihBilgisiAl();
-
-        } else if (item.getTitle().equals("Settings")) {
-            //ayarlar sayfasına git
-            Intent i = new Intent(NotlarActivity.this, AyarlarActivity.class);
-            startActivity(i);
-            finish();
+        } else {
+            Toast.makeText(NotlarActivity.this,
+                    "Before you can make a backup, you must first grant access to the storage in My Notes", Toast.LENGTH_LONG).show();
         }
-        return super.onOptionsItemSelected(item);
+
+
     }
+
+
+    /*******     local Story erisim izni icin   **********/
+
+    public void chooseImage() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+        } else {
+            //   Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            //   startActivityForResult(intent, 2);
+            backUpData();
+
+        }
+
+    }
+
+
+    public void backUp(String m_chosen, String dbName) {
+        try {
+            File sd = Environment.getExternalStorageDirectory();
+            File data = Environment.getDataDirectory();
+
+            if (sd.canWrite()) {
+                String currentDBPath = "//data//" + getPackageName() + "//databases//" + dbName;
+                // String backupDBPath = "backup.db";
+
+                File currentDB = new File(data, currentDBPath);
+                File backupDB = new File(m_chosen);
+
+                Log.d("backupDB path", "" + backupDB.getAbsolutePath());
+
+                if (currentDB.exists()) {
+                    FileChannel src = new FileInputStream(currentDB).getChannel();
+                    FileChannel dst = new FileOutputStream(backupDB).getChannel();
+                    dst.transferFrom(src, 0, src.size());
+                    src.close();
+                    dst.close();
+                    Toast.makeText(getApplicationContext(), "Backup received.\n" +
+                            "(" + m_chosen + ")", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(getApplicationContext(), "Access to storage is denied", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getApplicationContext(), "An error occurred!!!" + e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+
+
+        }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+// izin alininca ne yapilacak
+        if (requestCode == 1) {
+
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                //  startActivityForResult(intent, 2);
+                backUpData();
+            }
+
+
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == 2 && resultCode == RESULT_OK && data != null) {
+            Uri imageData = data.getData();
+
+       /*     try {
+                if (Build.VERSION.SDK_INT >= 28) {
+                    ImageDecoder.Source source = ImageDecoder.createSource(this.getContentResolver(), imageData);
+                    choosenImage = ImageDecoder.decodeBitmap(source);
+                    imageView.setImageBitmap(choosenImage);
+                } else {
+                    choosenImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageData);
+                    imageView.setImageBitmap(choosenImage);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            */
+        }
+
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
 
     private String tahihBilgisiniGetir() {
 
@@ -688,40 +822,6 @@ public class NotlarActivity extends AppCompatActivity {
         datePicker.setButton(DatePickerDialog.BUTTON_NEGATIVE, "Cancel", datePicker);
 
         datePicker.show();
-    }
-
-    public void backUp(String m_chosen, String dbName) {
-        try {
-            File sd = Environment.getExternalStorageDirectory();
-            File data = Environment.getDataDirectory();
-
-            if (sd.canWrite()) {
-                String currentDBPath = "//data//" + getPackageName() + "//databases//" + dbName;
-                // String backupDBPath = "backup.db";
-
-                File currentDB = new File(data, currentDBPath);
-                File backupDB = new File(m_chosen);
-
-                Log.d("backupDB path", "" + backupDB.getAbsolutePath());
-
-                if (currentDB.exists()) {
-                    FileChannel src = new FileInputStream(currentDB).getChannel();
-                    FileChannel dst = new FileOutputStream(backupDB).getChannel();
-                    dst.transferFrom(src, 0, src.size());
-                    src.close();
-                    dst.close();
-                    Toast.makeText(getApplicationContext(), "Backup received.\n" +
-                            "(" + m_chosen + ")", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(getApplicationContext(), "Access to storage is denied", Toast.LENGTH_SHORT).show();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getApplicationContext(), "An error occurred!!!" + e.getMessage().toString(), Toast.LENGTH_SHORT).show();
-
-
-        }
     }
 
 
@@ -1067,9 +1167,6 @@ public class NotlarActivity extends AppCompatActivity {
             @Override
             public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
 
-                //  String grupAdi = (String) adapter.getGroup(groupPosition);
-                //     Toast.makeText(NotlarActivity.this,""+grupAdi,Toast.LENGTH_SHORT).show();
-
                 Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                 vib.vibrate(30);
 
@@ -1290,6 +1387,8 @@ public class NotlarActivity extends AppCompatActivity {
             }
         }
     }
+
+
 }
 
 
