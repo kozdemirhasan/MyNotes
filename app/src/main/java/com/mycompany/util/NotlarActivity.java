@@ -391,7 +391,6 @@ public class NotlarActivity extends AppCompatActivity {
     public void backUpData() {
         File sd = Environment.getExternalStorageDirectory();
 
-
         if (sd.canWrite()) {
             /////////////////////////////////////////////////////////////////////////////////////////////////
             //Create FileSaveDialog and register a callback
@@ -409,8 +408,14 @@ public class NotlarActivity extends AppCompatActivity {
                     });
 
             //You can change the default filename using the public variable "Default_File_Name"
-            FileSaveDialog.Default_File_Name = "MyNotes_" + tahihBilgisiniGetir();
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HHmmss");
+           String  tarih = dateFormat.format(System.currentTimeMillis());
+
+            FileSaveDialog.Default_File_Name = "MyNotes_" + tarih;
+         //   FileSaveDialog.Default_File_Name = "MyNotes_" + tahihBilgisiniGetir();
             FileSaveDialog.chooseFile_or_Dir();
+
         } else {
             Toast.makeText(NotlarActivity.this,
                     "Before you can make a backup, you must first grant access to the storage in My Notes", Toast.LENGTH_LONG).show();
@@ -558,6 +563,7 @@ public class NotlarActivity extends AppCompatActivity {
         int minute = mcurrentTime.get(Calendar.MINUTE);//Güncel dakikayı aldık
         int sekond = mcurrentTime.get(Calendar.SECOND);//Güncel saniyeyi aldık
 
+        // return "" + day + month + year + hour + minute + sekond;
         return "" + day + month + year + hour + minute + sekond;
 
     }
